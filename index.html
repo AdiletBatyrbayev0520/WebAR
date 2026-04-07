@@ -1,92 +1,263 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-
-<head>
+  <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>AR Картины</title>
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
 
     <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-        }
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
 
-        #startButton {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 9999;
-            padding: 15px 30px;
-            font-size: 20px;
-            background: white;
-            border-radius: 10px;
-            border: none;
-            cursor: pointer;
-        }
+      #startButton {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 9999;
+        padding: 15px 30px;
+        font-size: 20px;
+        background: white;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <button id="startButton">Начать AR</button>
 
-    <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: false;" color-space="sRGB"
-        renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false"
-        device-orientation-permission-ui="enabled: false">
+    <a-scene
+      mindar-image="imageTargetSrc: ./targets.mind; autoStart: false;"
+      color-space="sRGB"
+      renderer="colorManagement: true, physicallyCorrectLights"
+      vr-mode-ui="enabled: false"
+      device-orientation-permission-ui="enabled: false"
+    >
+      <a-assets>
+        <video
+          id="video1"
+          src="./video.mp4"
+          autoplay
+          loop
+          muted
+          playsinline
+          webkit-playsinline
+        ></video>
+        <video
+          id="video2"
+          src="./video1.mp4"
+          autoplay
+          loop
+          muted
+          playsinline
+          webkit-playsinline
+        ></video>
+        <video
+          id="video3"
+          src="./video2.mp4"
+          autoplay
+          loop
+          muted
+          playsinline
+          webkit-playsinline
+        ></video>
+        <video
+          id="video4"
+          src="./video3.mp4"
+          autoplay
+          loop
+          muted
+          playsinline
+          webkit-playsinline
+        ></video>
+        <video
+          id="video5"
+          src="./video4.mp4"
+          autoplay
+          loop
+          muted
+          playsinline
+          webkit-playsinline
+        ></video>
+        <video
+          id="video6"
+          src="./video5.mp4"
+          autoplay
+          loop
+          muted
+          playsinline
+          webkit-playsinline
+        ></video>
+        <video
+          id="video7"
+          src="./video6.mp4"
+          autoplay
+          loop
+          muted
+          playsinline
+          webkit-playsinline
+        ></video>
+        <video
+          id="video8"
+          src="./video7.mp4"
+          autoplay
+          loop
+          muted
+          playsinline
+          webkit-playsinline
+        ></video>
+        <video
+          id="video9"
+          src="./video8.mp4"
+          autoplay
+          loop
+          muted
+          playsinline
+          webkit-playsinline
+        ></video>
+        <video
+          id="video10"
+          src="./video9.mp4"
+          autoplay
+          loop
+          muted
+          playsinline
+          webkit-playsinline
+        ></video>
+      </a-assets>
 
-        <a-assets>
-            <video id="video1" src="./video.mp4" autoplay loop muted playsinline webkit-playsinline></video>
-            <video id="video2" src="./video1.mp4" autoplay loop muted playsinline webkit-playsinline></video>
-        </a-assets>
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+      <a-entity mindar-image-target="targetIndex: 0" id="target1">
+        <a-video
+          src="#video1"
+          position="0 0 0"
+          height="1"
+          width="1.5"
+        ></a-video>
+      </a-entity>
 
-        <a-entity mindar-image-target="targetIndex: 0" id="target1">
-            <a-video src="#video1" position="0 0 0" height="1" width="1.5"></a-video>
-        </a-entity>
+      <a-entity mindar-image-target="targetIndex: 1" id="target2">
+        <a-video
+          src="#video2"
+          position="0 0 0"
+          height="1"
+          width="1.5"
+        ></a-video>
+      </a-entity>
 
-        <a-entity mindar-image-target="targetIndex: 1" id="target2">
-            <a-video src="#video2" position="0 0 0" height="1" width="1.5"></a-video>
-        </a-entity>
+      <a-entity mindar-image-target="targetIndex: 2" id="target3">
+        <a-video
+          src="#video3"
+          position="0 0 0"
+          height="1"
+          width="1.5"
+        ></a-video>
+      </a-entity>
 
+      <a-entity mindar-image-target="targetIndex: 3" id="target4">
+        <a-video
+          src="#video4"
+          position="0 0 0"
+          height="1"
+          width="1.5"
+        ></a-video>
+      </a-entity>
+
+      <a-entity mindar-image-target="targetIndex: 4" id="target5">
+        <a-video
+          src="#video5"
+          position="0 0 0"
+          height="1"
+          width="1.5"
+        ></a-video>
+      </a-entity>
+
+      <a-entity mindar-image-target="targetIndex: 5" id="target6">
+        <a-video
+          src="#video6"
+          position="0 0 0"
+          height="1"
+          width="1.5"
+        ></a-video>
+      </a-entity>
+
+      <a-entity mindar-image-target="targetIndex: 6" id="target7">
+        <a-video
+          src="#video7"
+          position="0 0 0"
+          height="1"
+          width="1.5"
+        ></a-video>
+      </a-entity>
+
+      <a-entity mindar-image-target="targetIndex: 7" id="target8">
+        <a-video
+          src="#video8"
+          position="0 0 0"
+          height="1"
+          width="1.5"
+        ></a-video>
+      </a-entity>
+
+      <a-entity mindar-image-target="targetIndex: 8" id="target9">
+        <a-video
+          src="#video9"
+          position="0 0 0"
+          height="1"
+          width="1.5"
+        ></a-video>
+      </a-entity>
+
+      <a-entity mindar-image-target="targetIndex: 9" id="target10">
+        <a-video
+          src="#video10"
+          position="0 0 0"
+          height="1"
+          width="1.5"
+        ></a-video>
+      </a-entity>
     </a-scene>
 
     <script>
-        const startButton = document.querySelector("#startButton");
-        const sceneEl = document.querySelector('a-scene');
+      const startButton = document.querySelector("#startButton");
+      const sceneEl = document.querySelector("a-scene");
 
-        // Находим элементы для первой картины
-        const target1 = document.querySelector('#target1');
-        const video1 = document.querySelector('#video1');
+      // Запуск AR по кнопке
+      startButton.addEventListener("click", () => {
+        sceneEl.systems["mindar-image-system"].start();
+        startButton.style.display = "none";
+      });
 
-        // Находим элементы для второй картины
-        const target2 = document.querySelector('#target2');
-        const video2 = document.querySelector('#video2');
+      const setupTargetVideo = (targetId, videoId) => {
+        const target = document.querySelector(targetId);
+        const video = document.querySelector(videoId);
 
-        // Запуск AR по кнопке
-        startButton.addEventListener('click', () => {
-            sceneEl.systems["mindar-image-system"].start();
-            startButton.style.display = 'none';
+        target.addEventListener("targetFound", () => {
+          video.currentTime = 0;
+          video.play();
         });
 
-        // --- ЛОГИКА ДЛЯ ПЕРВОЙ КАРТИНЫ ---
-        target1.addEventListener("targetFound", event => {
-            video1.play();
+        target.addEventListener("targetLost", () => {
+          video.pause();
         });
-        target1.addEventListener("targetLost", event => {
-            video1.pause();
-        });
+      };
 
-        // --- ЛОГИКА ДЛЯ ВТОРОЙ КАРТИНЫ ---
-        target2.addEventListener("targetFound", event => {
-            video2.play();
-        });
-        target2.addEventListener("targetLost", event => {
-            video2.pause();
-        });
+      setupTargetVideo("#target1", "#video1");
+      setupTargetVideo("#target2", "#video2");
+      setupTargetVideo("#target3", "#video3");
+      setupTargetVideo("#target4", "#video4");
+      setupTargetVideo("#target5", "#video5");
+      setupTargetVideo("#target6", "#video6");
+      setupTargetVideo("#target7", "#video7");
+      setupTargetVideo("#target8", "#video8");
+      setupTargetVideo("#target9", "#video9");
+      setupTargetVideo("#target10", "#video10");
     </script>
-</body>
-
+  </body>
 </html>
