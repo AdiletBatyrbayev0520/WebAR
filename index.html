@@ -55,16 +55,20 @@
     }
 
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      to {
+        transform: rotate(360deg);
+      }
     }
   </style>
 </head>
 
 <body>
   <button id="startButton">Batyrmany basynyz(Start AR)</button>
-  <div id="loadingOverlay"><div class="spinner"></div></div>
+  <div id="loadingOverlay">
+    <div class="spinner"></div>
+  </div>
 
-  <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: false;" color-space="sRGB"
+  <a-scene mindar-image="imageTargetSrc: ./resources/targets.mind; autoStart: false;" color-space="sRGB"
     renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false">
     <a-assets timeout="3000">
@@ -131,16 +135,16 @@
 
     // Map: video element id -> source URL (lazy-loaded on demand)
     const VIDEO_SOURCES = {
-      video1:  "./video.mp4",
-      video2:  "./video1.mp4",
-      video3:  "./video2.mp4",
-      video4:  "./video3.mp4",
-      video5:  "./video4.mp4",
-      video6:  "./video5.mp4",
-      video7:  "./video6.mp4",
-      video8:  "./video7.mp4",
-      video9:  "./video8.mp4",
-      video10: "./video9.mp4",
+      video1: "./resources/video.mp4",
+      video2: "./resources/video1.mp4",
+      video3: "./resources/video2.mp4",
+      video4: "./resources/video3.mp4",
+      video5: "./resources/video4.mp4",
+      video6: "./resources/video5.mp4",
+      video7: "./resources/video6.mp4",
+      video8: "./resources/video7.mp4",
+      video9: "./resources/video8.mp4",
+      video10: "./resources/video9.mp4",
     };
 
     // Track which videos have been loaded
@@ -228,7 +232,7 @@
         hideLoading();
         if (!loadedVideos.has(videoId)) {
           loadedVideos.add(videoId);
-          video.play().catch(() => {});
+          video.play().catch(() => { });
         }
       }, 8000);
     };
