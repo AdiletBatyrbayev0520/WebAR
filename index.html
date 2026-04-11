@@ -26,26 +26,59 @@
       border: none;
       cursor: pointer;
     }
+
+    /* Loading spinner shown while video buffers */
+    #loadingOverlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 9998;
+      pointer-events: none;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #loadingOverlay.visible {
+      display: flex;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top: 4px solid white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 
 <body>
   <button id="startButton">Batyrmany basynyz(Start AR)</button>
+  <div id="loadingOverlay"><div class="spinner"></div></div>
 
   <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: false;" color-space="sRGB"
     renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: false">
     <a-assets timeout="3000">
-      <video id="video1" src="./video.mp4" loop playsinline webkit-playsinline></video>
-      <video id="video2" src="./video1.mp4" loop playsinline webkit-playsinline></video>
-      <video id="video3" src="./video2.mp4" loop playsinline webkit-playsinline></video>
-      <video id="video4" src="./video3.mp4" loop playsinline webkit-playsinline></video>
-      <video id="video5" src="./video4.mp4" loop playsinline webkit-playsinline></video>
-      <video id="video6" src="./video5.mp4" loop playsinline webkit-playsinline></video>
-      <video id="video7" src="./video6.mp4" loop playsinline webkit-playsinline></video>
-      <video id="video8" src="./video7.mp4" loop playsinline webkit-playsinline></video>
-      <video id="video9" src="./video8.mp4" loop playsinline webkit-playsinline></video>
-      <video id="video10" src="./video9.mp4" loop playsinline webkit-playsinline></video>
+      <!-- No src — videos are lazy-loaded when a target is scanned -->
+      <video id="video1" loop playsinline webkit-playsinline></video>
+      <video id="video2" loop playsinline webkit-playsinline></video>
+      <video id="video3" loop playsinline webkit-playsinline></video>
+      <video id="video4" loop playsinline webkit-playsinline></video>
+      <video id="video5" loop playsinline webkit-playsinline></video>
+      <video id="video6" loop playsinline webkit-playsinline></video>
+      <video id="video7" loop playsinline webkit-playsinline></video>
+      <video id="video8" loop playsinline webkit-playsinline></video>
+      <video id="video9" loop playsinline webkit-playsinline></video>
+      <video id="video10" loop playsinline webkit-playsinline></video>
     </a-assets>
 
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
@@ -94,34 +127,55 @@
   <script>
     const startButton = document.querySelector("#startButton");
     const sceneEl = document.querySelector("a-scene");
+    const loadingOverlay = document.querySelector("#loadingOverlay");
 
-    // Collect all videos
-    const allVideos = [
-      document.querySelector("#video1"),
-      document.querySelector("#video2"),
-      document.querySelector("#video3"),
-      document.querySelector("#video4"),
-      document.querySelector("#video5"),
-      document.querySelector("#video6"),
-      document.querySelector("#video7"),
-      document.querySelector("#video8"),
-      document.querySelector("#video9"),
-      document.querySelector("#video10"),
-    ];
+    // Map: video element id -> source URL (lazy-loaded on demand)
+    const VIDEO_SOURCES = {
+      video1:  "./video.mp4",
+      video2:  "./video1.mp4",
+      video3:  "./video2.mp4",
+      video4:  "./video3.mp4",
+      video5:  "./video4.mp4",
+      video6:  "./video5.mp4",
+      video7:  "./video6.mp4",
+      video8:  "./video7.mp4",
+      video9:  "./video8.mp4",
+      video10: "./video9.mp4",
+    };
 
-    // Start AR on button click & unlock all videos for mobile browsers
+    // Track which videos have been loaded
+    const loadedVideos = new Set();
+
+    // Collect all video elements
+    const allVideos = Object.keys(VIDEO_SOURCES).map((id) =>
+      document.querySelector("#" + id)
+    );
+
+    // Unlock audio context + video playback on user gesture (button click)
     startButton.addEventListener("click", () => {
-      // Unlock every video by briefly playing then pausing (user gesture context)
+      // Unlock AudioContext for the page (allows programmatic audio later)
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      audioCtx.resume();
+
+      // Unlock each video element with a muted play (no src needed for unlock)
+      // We use a tiny data URI to trigger the unlock
+      const silentDataUri = "data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAAhtZGF0AAACrgYF//+q3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE1NyByMjk4MCBhMGNkN2QzIC0gSC4yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAxOSAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub3JnL3gyNjQuaHRtbCAtIG9wdGlvbnM6IGNhYmFjPTEgcmVmPTMgZGVibG9jaz0xOjA6MCBhbmFseXNlPTB4MzoweDExMyBtZT1oZXggc3VibWU9NyBwc3k9MSBwc3lfcmQ9MS4wMDowLjAwIG1peGVkX3JlZj0xIG1lX3JhbmdlPTE2IGNocm9tYV9tZT0xIHRyZWxsaXM9MSA4eDhkY3Q9MSBjcW09MCBkZWFkem9uZT0yMSwxMSBmYXN0X3Bza2lwPTEgY2hyb21hX3FwX29mZnNldD0tMiB0aHJlYWRzPTEgbG9va2FoZWFkX3RocmVhZHM9MSBzbGljZWRfdGhyZWFkcz0wIG5yPTAgZGVjaW1hdGU9MSBpbnRlcmxhY2VkPTAgYmx1cmF5X2NvbXBhdD0wIGNvbnN0cmFpbmVkX2ludHJhPTAgYmZyYW1lcz0zIGJfcHlyYW1pZD0yIGJfYWRhcHQ9MSBiX2JpYXM9MCBkaXJlY3Q9MSB3ZWlnaHRiPTEgb3Blbl9nb3A9MCB3ZWlnaHRwPTIga2V5aW50PTI1MCBrZXlpbnRfbWluPTI1IHNjZW5lY3V0PTQwIGludHJhX3JlZnJlc2g9MCByY19sb29rYWhlYWQ9NDAgcmM9Y3JmIG1idHJlZT0xIGNyZj0yMy4wIHFjb21wPTAuNjAgcXBtaW49MCBxcG1heD02OSBxcHN0ZXA9NCBpcF9yYXRpbz0xLjQwIGFxPTE6MS4wMACAAAAFbW1vb3YAAABsbXZoZAAAAAAAAAAAAAAAAAAAA+gAAAAAAAEAAAEAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAASwdHJhawAAAFx0a2hkAAAAAwAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAABAAAAAABAAAAASAAAAAAAkZWR0cwAAABxlbHN0AAAAAAAAAAEAAAAAAAEAAAAAAQAAAAAEGm1kaWEAAAAgbWRoZAAAAAAAAAAAAAAAAAB1MAAAdU4VxAAAAC1oZGxyAAAAAAAAAAB2aWRlAAAAAAAAAAAAAAAAVmlkZW9IYW5kbGVyAAAAA8VtaW5mAAAAFHZtaGQAAAABAAAAAAAAAAAAAAAkZGluZgAAABxkcmVmAAAAAAAAAAEAAAAMdXJsIAAAAAEAAAOFc3RibAAAALVzdHNkAAAAAAAAAAEAAAClYXZjMQAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAASABIASAAAAEgAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABj//wAAADNhdmNDAWQACv/hABhnZAAKrNlBsFe/AQAAAYBkAAIFoYUJYJAAAGjgAAADAB3MAtYBAAZo6AEABbjYyHAAAAAmJYgAATZIIofiAIhkh0ZhHvI8xPgACOcGVIABDJiAg0MgAAAAGHN0dHMAAAAAAAAAAQAAAAEAAAAyAAAAFHN0c3MAAAAAAAAAAQAAAAEAAAA4Y3R0cwAAAAAAAAABAAAAAQAAAHIAAAAcc3RzYwAAAAAAAAABAAAAAQAAAAEAAAABAAAAHHN0c3oAAAAAAAAAAAAAAAEAAAK2AAAAFHN0Y28AAAAAAAAAAQAAADAAAABidWR0YQAAAFptZXRhAAAAAAAAACFoZGxyAAAAAAAAAABtZGlyYXBwbAAAAAAAAAAAAAAAAC1pbHN0AAAAJal0b28AAAAdZGF0YQAAAAEAAAAATGF2ZjU4LjQ1LjEwMA==";
+
       allVideos.forEach((video) => {
         video.muted = true;
-        const playPromise = video.play();
-        if (playPromise !== undefined) {
-          playPromise.then(() => {
+        const originalSrc = video.src;
+        video.src = silentDataUri;
+        const p = video.play();
+        if (p !== undefined) {
+          p.then(() => {
             video.pause();
             video.muted = false;
             video.currentTime = 0;
+            video.removeAttribute("src");
+            video.load(); // Reset the video element
           }).catch(() => {
             video.muted = false;
+            video.removeAttribute("src");
           });
         }
       });
@@ -139,31 +193,70 @@
       });
     };
 
-    const setupTargetVideo = (targetId, videoId) => {
-      const target = document.querySelector(targetId);
-      const video = document.querySelector(videoId);
+    // Show/hide loading spinner
+    const showLoading = () => loadingOverlay.classList.add("visible");
+    const hideLoading = () => loadingOverlay.classList.remove("visible");
 
-      target.addEventListener("targetFound", () => {
-        pauseAllExcept(video);
+    // Lazy-load and play a video
+    const loadAndPlay = (video, videoId) => {
+      pauseAllExcept(video);
+
+      // Already loaded — just play immediately
+      if (loadedVideos.has(videoId)) {
         video.currentTime = 0;
         video.play();
+        return;
+      }
+
+      // First time — set src and wait for it to buffer
+      showLoading();
+      video.src = VIDEO_SOURCES[videoId];
+      video.load();
+
+      const onCanPlay = () => {
+        video.removeEventListener("canplay", onCanPlay);
+        hideLoading();
+        loadedVideos.add(videoId);
+        video.currentTime = 0;
+        video.play();
+      };
+
+      video.addEventListener("canplay", onCanPlay);
+
+      // Fallback timeout: hide spinner after 8s even if canplay hasn't fired
+      setTimeout(() => {
+        hideLoading();
+        if (!loadedVideos.has(videoId)) {
+          loadedVideos.add(videoId);
+          video.play().catch(() => {});
+        }
+      }, 8000);
+    };
+
+    const setupTargetVideo = (targetId, videoId) => {
+      const target = document.querySelector(targetId);
+      const video = document.querySelector("#" + videoId);
+
+      target.addEventListener("targetFound", () => {
+        loadAndPlay(video, videoId);
       });
 
       target.addEventListener("targetLost", () => {
         video.pause();
+        hideLoading();
       });
     };
 
-    setupTargetVideo("#target1", "#video1");
-    setupTargetVideo("#target2", "#video2");
-    setupTargetVideo("#target3", "#video3");
-    setupTargetVideo("#target4", "#video4");
-    setupTargetVideo("#target5", "#video5");
-    setupTargetVideo("#target6", "#video6");
-    setupTargetVideo("#target7", "#video7");
-    setupTargetVideo("#target8", "#video8");
-    setupTargetVideo("#target9", "#video9");
-    setupTargetVideo("#target10", "#video10");
+    setupTargetVideo("#target1", "video1");
+    setupTargetVideo("#target2", "video2");
+    setupTargetVideo("#target3", "video3");
+    setupTargetVideo("#target4", "video4");
+    setupTargetVideo("#target5", "video5");
+    setupTargetVideo("#target6", "video6");
+    setupTargetVideo("#target7", "video7");
+    setupTargetVideo("#target8", "video8");
+    setupTargetVideo("#target9", "video9");
+    setupTargetVideo("#target10", "video10");
   </script>
 </body>
 
